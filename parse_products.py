@@ -1,6 +1,9 @@
+import itertools
 import json
 import multiprocessing
+from warnings import catch_warnings
 
+import bs4
 import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -11,23 +14,40 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def parse_product(soup):
+def parse_product(soup: BeautifulSoup):
     offer = soup.find(id="product-offer")
 
     # first child is gallery, second prod info
-    inner_prod_info = list(offer.children)[1].div
+    inner_prod_info: bs4.Tag = offer.find_all("div", recursive=False)[1]
 
     desc = inner_prod_info.find(itemprop="description")
-    features = desc.ul.extract()
-    prod = {"title": inner_prod_info.find(itemprop="name").text,
-            "sku": int(inner_prod_info.find(itemprop="sku").text),
-            "category": inner_prod_info.find(itemprop="category").text,
-            "brand": inner_prod_info.find(itemprop="brand").find(itemprop="name").text,
-            "full_description": desc.text,
-            "description": desc.text,
-            "features": [li.text for li in features.find_all("li")]}
+    desc_sections = []
+    features = []
+    if desc is not None:
+        desc_sections = desc.find_all("p", recursive=False)
+        desc_sections = [s.find_all(string=True) for s in desc_sections]
+        desc_sections = list(itertools.chain.from_iterable(desc_sections))
+    
+        features = desc.findChild("ul")
+        if features is not None:
+            features = [li.text for li in features.find_all("li")]
+    prod = {
+        "title": inner_prod_info.find(itemprop="name").text.strip(),
+        "sku": int(inner_prod_info.find(itemprop="sku").text.strip()),
+        "category": inner_prod_info.find(itemprop="category").text.strip(),
+        "brand": try_get_or_none(lambda: inner_prod_info.find(itemprop="brand").find(itemprop="name").text.strip()),
+        "full_description": "\n".join(desc.find_all(string=True)) if desc else "",
+        "description": "\n".join(desc_sections),
+        "features": features
+            }
 
     return prod
+
+def try_get_or_none(func):
+    try:
+        return func()
+    except:
+        return None
 
 
 def get_soup(url):
