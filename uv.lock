@@ -249,6 +249,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "nbstripout" },
     { name = "pyright" },
     { name = "ruff" },
 ]
@@ -311,6 +312,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "nbstripout", specifier = ">=0.7.1" },
     { name = "pyright", specifier = ">=1.1.394" },
     { name = "ruff", specifier = ">=0.9.6" },
 ]
