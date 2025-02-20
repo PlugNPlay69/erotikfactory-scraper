@@ -46,7 +46,7 @@ if __name__ == "__main__":
     print(f"Found {n_products} products, trying to grab links")
     first_page_links = list(extract_links(soup))
     n_pages = n_products // len(first_page_links)
-    pages = range(2, n_pages + 1)
+    pages = range(2, n_pages + 2)
 
     all_links = first_page_links
     with multiprocessing.Pool() as pool:
