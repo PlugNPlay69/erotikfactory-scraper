@@ -58,3 +58,9 @@ dependencies = [
     "wcwidth==0.2.13",
     "widgetsnbextension==4.0.10",
 ]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.394",
+    "ruff>=0.9.6",
+]

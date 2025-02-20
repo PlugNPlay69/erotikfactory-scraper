@@ -27,7 +27,7 @@ def get_n_products(soup: BeautifulSoup):
 def extract_links(soup: BeautifulSoup):
     product_list = soup.find(id="product-list")
     for div in product_list.find_all("div", recursive=False):
-        url = div.find("meta", itemprop="url")['content']
+        url = div.find("meta", itemprop="url")["content"]
         yield url
 
 
@@ -39,7 +39,7 @@ def writelines(file, lines):
     file.writelines(line + "\n" for line in lines)  # god python is so fucking stupid
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # first page done manually to also get the total number of products/pages
     soup = cook(request_page(1))
     n_products = get_n_products(soup)
@@ -50,7 +50,11 @@ if __name__ == '__main__':
 
     all_links = first_page_links
     with multiprocessing.Pool() as pool:
-        for links in tqdm(pool.imap_unordered(extract_links_from_page, pages), initial=1, total=n_pages):
+        for links in tqdm(
+            pool.imap_unordered(extract_links_from_page, pages),
+            initial=1,
+            total=n_pages,
+        ):
             all_links.extend(links)
 
     with open("product_links.txt", "wt") as links_file:

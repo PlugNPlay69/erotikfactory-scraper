@@ -1,7 +1,6 @@
 import itertools
 import json
 import multiprocessing
-from warnings import catch_warnings
 
 import bs4
 import requests
@@ -27,7 +26,7 @@ def parse_product(soup: BeautifulSoup):
         desc_sections = desc.find_all("p", recursive=False)
         desc_sections = [s.find_all(string=True) for s in desc_sections]
         desc_sections = list(itertools.chain.from_iterable(desc_sections))
-    
+
         features = desc.findChild("ul")
         if features is not None:
             features = [li.text for li in features.find_all("li")]
@@ -35,18 +34,24 @@ def parse_product(soup: BeautifulSoup):
         "title": inner_prod_info.find(itemprop="name").text.strip(),
         "sku": int(inner_prod_info.find(itemprop="sku").text.strip()),
         "category": inner_prod_info.find(itemprop="category").text.strip(),
-        "brand": try_get_or_none(lambda: inner_prod_info.find(itemprop="brand").find(itemprop="name").text.strip()),
+        "brand": try_get_or_none(
+            lambda: inner_prod_info.find(itemprop="brand")
+            .find(itemprop="name")
+            .text.strip()
+        ),
         "full_description": "\n".join(desc.find_all(string=True)) if desc else "",
         "description": "\n".join(desc_sections),
-        "features": features
-            }
+        "features": features,
+    }
 
     return prod
 
+
 def try_get_or_none(func):
+    # noinspection PyBroadException
     try:
         return func()
-    except:
+    except:  # noqa: E722
         return None
 
 
@@ -76,7 +81,7 @@ def extract_product(url):
     return product
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("product_links.txt") as file:
         urls = [line.strip() for line in file.readlines()]
 
@@ -84,8 +89,14 @@ if __name__ == '__main__':
         product_file.write("[\n")
         with multiprocessing.Pool() as pool:
             start = True
-            for product in (pbar := tqdm(pool.imap_unordered(extract_product, urls), total=len(urls))):
-                pbar.set_description(product.get("title", product.get("error", "WTF?!")))
+            for product in (
+                pbar := tqdm(
+                    pool.imap_unordered(extract_product, urls), total=len(urls)
+                )
+            ):
+                pbar.set_description(
+                    product.get("title", product.get("error", "WTF?!"))
+                )
                 if start:
                     start = False
                 else:
