@@ -30,6 +30,7 @@ def parse_product(soup: BeautifulSoup):
         features = desc.findChild("ul")
         if features is not None:
             features = [li.text for li in features.find_all("li")]
+
     prod = {
         "title": inner_prod_info.find(itemprop="name").text.strip(),
         "sku": int(inner_prod_info.find(itemprop="sku").text.strip()),
@@ -39,6 +40,7 @@ def parse_product(soup: BeautifulSoup):
             .find(itemprop="name")
             .text.strip()
         ),
+        "price": float(offer.find(itemprop="price").attrs["content"]),
         "full_description": "\n".join(desc.find_all(string=True)) if desc else "",
         "description": "\n".join(desc_sections),
         "features": features,
