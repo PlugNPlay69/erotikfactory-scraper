@@ -40,6 +40,7 @@ dependencies = [
     "psutil==5.9.8",
     "ptyprocess==0.7.0",
     "pure-eval==0.2.2",
+    "pyarrow>=19.0.1",
     "pygments==2.17.2",
     "python-dateutil==2.8.2",
     "pytz==2024.1",
@@ -62,6 +63,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "nbstripout>=0.7.1",
+    "notebook>=7.3.2",
     "pyright>=1.1.394",
     "ruff>=0.9.6",
 ]
